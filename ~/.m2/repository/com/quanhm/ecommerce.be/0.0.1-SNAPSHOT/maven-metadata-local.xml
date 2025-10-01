@@ -3,7 +3,7 @@
   <groupId>com.quanhm</groupId>
   <artifactId>ecommerce.be</artifactId>
   <versioning>
-    <lastUpdated>20250928152347</lastUpdated>
+    <lastUpdated>20251001181431</lastUpdated>
     <snapshot>
       <localCopy>true</localCopy>
     </snapshot>
@@ -11,12 +11,12 @@
       <snapshotVersion>
         <extension>pom</extension>
         <value>0.0.1-SNAPSHOT</value>
-        <updated>20250928152347</updated>
+        <updated>20251001181431</updated>
       </snapshotVersion>
       <snapshotVersion>
         <extension>jar</extension>
         <value>0.0.1-SNAPSHOT</value>
-        <updated>20250928152347</updated>
+        <updated>20251001181431</updated>
       </snapshotVersion>
     </snapshotVersions>
   </versioning>
