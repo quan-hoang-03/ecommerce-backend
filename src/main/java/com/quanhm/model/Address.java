@@ -1,6 +1,6 @@
 package com.quanhm.model;
 
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity

@@ -1,5 +1,6 @@
 package com.quanhm.model;
-import jakarta.persistence.Entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
 import javax.annotation.processing.Generated;
 import java.time.LocalDateTime;
