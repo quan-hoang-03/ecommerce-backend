@@ -2,7 +2,9 @@ package com.quanhm.ecommerce.be.service;
 
 import com.quanhm.ecommerce.be.exception.UserException;
 import com.quanhm.ecommerce.be.model.User;
+import org.springframework.stereotype.Service;
 
+@Service
 public interface UserService {
     public User findUserById(Long userId) throws UserException;
 
