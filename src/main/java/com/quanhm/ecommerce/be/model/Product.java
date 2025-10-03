@@ -1,15 +1,5 @@
-package com.quanhm.model;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.CascadeType;
+package com.quanhm.ecommerce.be.model;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,7 +34,6 @@ public class Product {
     @Column(name="color")
     private String color;
 
-    @Embedded
     @ElementCollection
     @Column(name="sizes")
     private Set<Size> sizes = new HashSet<>();

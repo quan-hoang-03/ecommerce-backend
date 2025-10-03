@@ -1,8 +1,7 @@
-package com.quanhm.model;
+package com.quanhm.ecommerce.be.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import javax.annotation.processing.Generated;
 import java.time.LocalDateTime;
 
 @Entity

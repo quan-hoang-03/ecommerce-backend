@@ -1,4 +1,4 @@
-package com.quanhm.model;
+package com.quanhm.ecommerce.be.model;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Table(name="users", schema = "dbo")
 @Entity
 public class User {
     @Id
@@ -20,10 +21,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Address> address = new ArrayList<>();
 
-    @Embedded
     @ElementCollection
     @CollectionTable(name="payment_information",joinColumns = @JoinColumn(name="user_id"))
-    private  List<PaymentInformation> paymentInformation = new ArrayList<>();
+    private List<PaymentInformation> paymentInformation = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore

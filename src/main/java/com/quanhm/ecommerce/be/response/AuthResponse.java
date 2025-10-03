@@ -1,4 +1,4 @@
-package com.quanhm.response;
+package com.quanhm.ecommerce.be.response;
 
 public class AuthResponse {
     private String jwt;

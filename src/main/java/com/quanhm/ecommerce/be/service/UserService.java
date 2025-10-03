@@ -1,7 +1,7 @@
-package com.quanhm.service;
+package com.quanhm.ecommerce.be.service;
 
-import com.quanhm.exception.UserException;
-import com.quanhm.model.User;
+import com.quanhm.ecommerce.be.exception.UserException;
+import com.quanhm.ecommerce.be.model.User;
 
 public interface UserService {
     public User findUserById(Long userId) throws UserException;

@@ -1,4 +1,4 @@
-package com.quanhm.request;
+package com.quanhm.ecommerce.be.request;
 
 public class LoginRequest {
     private String email;

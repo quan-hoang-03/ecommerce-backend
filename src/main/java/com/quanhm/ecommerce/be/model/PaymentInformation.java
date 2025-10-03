@@ -1,9 +1,10 @@
-package com.quanhm.model;
+package com.quanhm.ecommerce.be.model;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
+@Embeddable
 public class PaymentInformation {
     @Column(name="card_name")
     private String cardName;

@@ -1,12 +1,12 @@
-package com.quanhm.controller;
+package com.quanhm.ecommerce.be.controller;
 
-import com.quanhm.config.JwtProvide;
-import com.quanhm.exception.UserException;
-import com.quanhm.model.User;
-import com.quanhm.repository.UserRepository;
-import com.quanhm.request.LoginRequest;
-import com.quanhm.response.AuthResponse;
-import com.quanhm.service.CustomeUserServiceImplementation;
+import com.quanhm.ecommerce.be.config.JwtProvide;
+import com.quanhm.ecommerce.be.exception.UserException;
+import com.quanhm.ecommerce.be.model.User;
+import com.quanhm.ecommerce.be.repository.UserRepository;
+import com.quanhm.ecommerce.be.request.LoginRequest;
+import com.quanhm.ecommerce.be.response.AuthResponse;
+import com.quanhm.ecommerce.be.service.CustomeUserServiceImplementation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -38,7 +38,7 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse>createUserHandle(@RequestBody User user) throws UserException{
         String email = user.getEmail();
-        String password = user.getPassWord();
+        String passWord = user.getPassWord();
         String firstName = user.getFirstName();
         String lastName = user.getLastName();
 
@@ -49,7 +49,7 @@ public class AuthController {
 
         User createdUser = new User();
         createdUser.setEmail(email);
-        createdUser.setPassWord(passwordEncoder.encode(password));
+        createdUser.setPassWord(passwordEncoder.encode(passWord));
         createdUser.setFirstName(firstName);
         createdUser.setLastName(lastName);
 
@@ -68,8 +68,8 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<AuthResponse>loginUserHandle(@RequestBody LoginRequest loginRequest){
         String username = loginRequest.getEmail();
-        String password = loginRequest.getPassword();
-        Authentication authentication = authenticate(username,password);
+        String passWord = loginRequest.getPassword();
+        Authentication authentication = authenticate(username,passWord);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtProvide.generateToken(authentication);
 
@@ -80,12 +80,12 @@ public class AuthController {
 
     }
 
-    private Authentication authenticate(String username, String password) {
+    private Authentication authenticate(String username, String passWord) {
         UserDetails userDetails = customeUserService.loadUserByUsername(username);
         if(userDetails == null){
             throw new BadCredentialsException("Tên người dùng không hợp lệ");
         }
-        if(passwordEncoder.matches(password,userDetails.getPassword())){
+        if(!passwordEncoder.matches(passWord,userDetails.getPassword())){
             throw new BadCredentialsException("Mật khẩu không hợp lệ");
         }
         return new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());

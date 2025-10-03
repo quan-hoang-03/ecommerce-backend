@@ -1,4 +1,4 @@
-package com.quanhm.config;
+package com.quanhm.ecommerce.be.config;
 
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;

@@ -1,9 +1,8 @@
-package com.quanhm.service;
+package com.quanhm.ecommerce.be.service;
 
-import com.quanhm.model.User;
-import com.quanhm.repository.UserRepository;
+import com.quanhm.ecommerce.be.model.User;
+import com.quanhm.ecommerce.be.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

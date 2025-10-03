@@ -1,4 +1,4 @@
-package com.quanhm.config;
+package com.quanhm.ecommerce.be.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,5 +1,8 @@
-package com.quanhm.model;
+package com.quanhm.ecommerce.be.model;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public class Size {
     private String name;
     private int quantity;

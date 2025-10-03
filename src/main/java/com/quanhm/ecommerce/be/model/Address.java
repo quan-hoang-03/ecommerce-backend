@@ -1,4 +1,4 @@
-package com.quanhm.model;
+package com.quanhm.ecommerce.be.model;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
