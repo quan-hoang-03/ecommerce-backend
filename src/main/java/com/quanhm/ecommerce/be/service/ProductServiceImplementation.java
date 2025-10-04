@@ -7,6 +7,7 @@ import com.quanhm.ecommerce.be.repository.CategoryRepository;
 import com.quanhm.ecommerce.be.repository.ProductRepository;
 import com.quanhm.ecommerce.be.request.CreateProductRequest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -131,6 +132,8 @@ public class ProductServiceImplementation implements ProductService{
         }
         int startIndex = (int)pageble.getOffset();
         int endIndex = Math.min(startIndex + pageble.getPageSize(), products.size());
-        return null;
+        List<Product> pageContent = products.subList(startIndex, endIndex);
+        Page<Product> filteredProducts = new PageImpl<>(pageContent,pageble,products.size());
+        return filteredProducts;
     }
 }
