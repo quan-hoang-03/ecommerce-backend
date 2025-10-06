@@ -2,10 +2,12 @@ package com.quanhm.ecommerce.be.controller;
 
 import com.quanhm.ecommerce.be.config.JwtProvide;
 import com.quanhm.ecommerce.be.exception.UserException;
+import com.quanhm.ecommerce.be.model.Cart;
 import com.quanhm.ecommerce.be.model.User;
 import com.quanhm.ecommerce.be.repository.UserRepository;
 import com.quanhm.ecommerce.be.request.LoginRequest;
 import com.quanhm.ecommerce.be.response.AuthResponse;
+import com.quanhm.ecommerce.be.service.CartService;
 import com.quanhm.ecommerce.be.service.CustomeUserServiceImplementation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +29,14 @@ public class AuthController {
     private JwtProvide jwtProvide;
     private PasswordEncoder passwordEncoder;
     private CustomeUserServiceImplementation customeUserService;
+    private CartService cartService;
 
-    public AuthController(UserRepository userRepository,CustomeUserServiceImplementation customeUserService,PasswordEncoder passwordEncoder, JwtProvide jwtProvide){
+    public AuthController(UserRepository userRepository,CustomeUserServiceImplementation customeUserService,PasswordEncoder passwordEncoder, JwtProvide jwtProvide, CartService cartService){
         this.userRepository = userRepository;
         this.customeUserService = customeUserService;
         this.passwordEncoder = passwordEncoder;
         this.jwtProvide = jwtProvide;
+        this.cartService = cartService;
     }
 
     @PostMapping("/signup")
@@ -54,6 +58,7 @@ public class AuthController {
         createdUser.setLastName(lastName);
 
         User savedUser = userRepository.save(createdUser);
+        Cart cart = cartService.createCart(savedUser);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getEmail(),savedUser.getPassWord());
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -68,7 +73,7 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<AuthResponse>loginUserHandle(@RequestBody LoginRequest loginRequest){
         String username = loginRequest.getEmail();
-        String passWord = loginRequest.getPassword();
+        String passWord = loginRequest.getPassWord();
         Authentication authentication = authenticate(username,passWord);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtProvide.generateToken(authentication);

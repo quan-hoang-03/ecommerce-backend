@@ -10,7 +10,7 @@ public interface CartService {
 
     public String addCartItem(Long userId, AddItemRequest req) throws ProductExpection;
 
-    public Cart findUserCard(Long userId);
+    public Cart findUserCart(Long userId);
 
 
 }

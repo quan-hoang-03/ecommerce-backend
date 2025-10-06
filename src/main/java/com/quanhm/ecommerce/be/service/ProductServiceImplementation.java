@@ -111,8 +111,12 @@ public class ProductServiceImplementation implements ProductService{
 
     @Override
     public List<Product> findProductByCategory(String category) {
-        return List.of();
+        if (category == null || category.trim().isEmpty()) {
+            return productRepository.findAll();
+        }
+        return productRepository.findByCategory_NameIgnoreCase(category.trim());
     }
+
 
     @Override
     public Page<Product> getAllProduct(String category, List<String> colors, List<String> sizes, Integer minPrice, Integer maxPrice, Integer minDiscount, String sort, String stock, Integer pageNumber, Integer pageSize) {
@@ -149,4 +153,6 @@ public class ProductServiceImplementation implements ProductService{
             return List.of();
         }
     }
+
+
 }

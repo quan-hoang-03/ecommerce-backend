@@ -15,16 +15,24 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "CASE WHEN :sort = 'price_low' THEN p.discountPrice END ASC, " +
             "CASE WHEN :sort = 'price_high' THEN p.discountPrice END DESC")
 
+
     public List<Product>filterProducts(@Param("category") String category,
                                        @Param("minPrice") String minPrice,
                                        @Param("maxPrice") String maxPrice,
                                        @Param("minDiscount") String minDiscount,
                                        @Param("sort") String sort);
 
+    @Query("SELECT p FROM Product p WHERE LOWER(p.category.name) = LOWER(:category)")
+    List<Product> findProductByCategory(@Param("category") String category);
+
+
     List<Product> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String title, String description);
 
     List<Product> findByTitleContainingIgnoreCase(String title);
 
     List<Product> findByDescriptionContainingIgnoreCase(String description);
+
+    List<Product> findByCategory_NameIgnoreCase(String categoryName);
+
 
 }
