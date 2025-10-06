@@ -2,9 +2,10 @@ package com.quanhm.ecommerce.be.service;
 
 import com.quanhm.ecommerce.be.model.OrderItem;
 import com.quanhm.ecommerce.be.repository.OrderItemRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class OrderItemServiceImpletation implements OrderItemService{
-
 
     private OrderItemRepository orderItemRepository;
 

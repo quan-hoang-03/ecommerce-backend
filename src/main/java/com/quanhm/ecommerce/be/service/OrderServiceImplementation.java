@@ -33,9 +33,9 @@ public class OrderServiceImplementation implements OrderService {
     public Order createOrder(User user, Address shippingAddress) {
 //        Gán địa chỉ giao hàng cho người dùng, lưu địa chỉ vào CSDL,
 //        rồi cập nhật lại thông tin user có thêm địa chỉ đó.
-        shippAddress.setUser(user);
-        Address address = addressRepository.save(shippAddress);
-        user.getAddresses().add(address);
+        shippingAddress.setUser(user);
+        Address address = addressRepository.save(shippingAddress);
+        user.getAddress().add(address);
         userRepository.save(user);
 //        Lấy giỏ hàng hiện tại của người dùng,
 //        và lưu các mặt hàng vào danh sách orderItems trong đơn hàng
