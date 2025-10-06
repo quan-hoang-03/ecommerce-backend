@@ -115,7 +115,7 @@ public class ProductServiceImplementation implements ProductService{
     }
 
     @Override
-    public Page<Product> getAllProduct(String category, List<String> colors, List<String> sizes, Integer minPrice, Integer maxPrice, Integer page, Integer minDiscount, String sort, String stock, Integer pageNumber, Integer pageSize) {
+    public Page<Product> getAllProduct(String category, List<String> colors, List<String> sizes, Integer minPrice, Integer maxPrice, Integer minDiscount, String sort, String stock, Integer pageNumber, Integer pageSize) {
         Pageable pageble = PageRequest.of(pageNumber,pageSize);
         List<Product> products = productRepository.filterProducts(category,minPrice+"",maxPrice+"",minDiscount+"",sort);
         if (!colors.isEmpty()) {
@@ -135,5 +135,18 @@ public class ProductServiceImplementation implements ProductService{
         List<Product> pageContent = products.subList(startIndex, endIndex);
         Page<Product> filteredProducts = new PageImpl<>(pageContent,pageble,products.size());
         return filteredProducts;
+    }
+
+    @Override
+    public List<Product> searchProduct(String title, String description) {
+        if (title != null && description != null) {
+            return productRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(title, description);
+        } else if (title != null) {
+            return productRepository.findByTitleContainingIgnoreCase(title);
+        } else if (description != null) {
+            return productRepository.findByDescriptionContainingIgnoreCase(description);
+        } else {
+            return List.of();
+        }
     }
 }

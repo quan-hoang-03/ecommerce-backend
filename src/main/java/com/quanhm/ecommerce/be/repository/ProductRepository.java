@@ -20,4 +20,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                        @Param("maxPrice") String maxPrice,
                                        @Param("minDiscount") String minDiscount,
                                        @Param("sort") String sort);
+
+    List<Product> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String title, String description);
+
+    List<Product> findByTitleContainingIgnoreCase(String title);
+
+    List<Product> findByDescriptionContainingIgnoreCase(String description);
+
 }
