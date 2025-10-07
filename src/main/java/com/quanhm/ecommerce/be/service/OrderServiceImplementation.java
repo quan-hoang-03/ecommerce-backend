@@ -90,11 +90,11 @@ public class OrderServiceImplementation implements OrderService {
             return opt.get();
         }
 
-        throw new OrderException("Đơn hàng đã tồn tại" + orderId);
+        throw new OrderException("Id Đơn hàng đã tồn tại" + orderId);
     }
 
     @Override
-    public List<Order> getUserOrderHistory(Long userId) {
+    public List<Order> usersOrderHistory(Long userId) {
         List<Order> orders = orderRepository.getUsersOrders(userId);
         return orders;
     }

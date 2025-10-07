@@ -12,7 +12,7 @@ public interface OrderService {
 
     public Order findOrderById(Long orderId) throws OrderException;
 
-    public List<Order> getUserOrderHistory(Long userId);
+    public List<Order> usersOrderHistory(Long userId);
 
     public Order placeOrder(Long orderId) throws OrderException;
 
