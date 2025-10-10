@@ -50,7 +50,7 @@ public class ProductController {
     }
 
 //    Lấy chi tiết một sản phẩm cụ thể theo ID.
-    @GetMapping("/products/id/{productId}")
+    @GetMapping("/products/{productId}")
     public ResponseEntity<Product> findProductByIdHandler(
             @PathVariable Long productId) throws ProductExpection {
 
