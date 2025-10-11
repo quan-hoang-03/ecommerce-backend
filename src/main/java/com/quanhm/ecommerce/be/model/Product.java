@@ -31,8 +31,8 @@ public class Product {
     @Column(name="brand")
     private String brand;
 
-    @Column(name="color")
-    private String color;
+    @Column(name="colors")
+    private String colors;
 
     @ElementCollection
     @Column(name="sizes")
@@ -119,12 +119,12 @@ public class Product {
         this.brand = brand;
     }
 
-    public String getColor() {
-        return color;
+    public String getColors() {
+        return colors;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setColors(String colors) {
+        this.colors = colors;
     }
 
     public Set<Size> getSizes() {
@@ -187,7 +187,7 @@ public class Product {
     }
 
     public Product(Long id, String title, String description, int price, int discountPrice,
-                   int discountPersent, int quantity, String brand, String color, Set<Size> sizes,
+                   int discountPersent, int quantity, String brand, String colors, Set<Size> sizes,
                    String imageUrl, List<Rating> ratings, List<Review> reviews, int numRatings,
                    Category category, LocalDateTime createdAt) {
         this.id = id;
@@ -198,7 +198,7 @@ public class Product {
         this.discountPersent = discountPersent;
         this.quantity = quantity;
         this.brand = brand;
-        this.color = color;
+        this.colors = colors;
         this.sizes = sizes;
         this.imageUrl = imageUrl;
         this.ratings = ratings;

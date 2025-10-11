@@ -30,7 +30,7 @@ public class ProductController {
     @GetMapping("/products")
     public ResponseEntity<Page<Product>> findProductByCategoryHandler(
             @RequestParam String category,
-            @RequestParam List<String> color,
+            @RequestParam List<String> colors,
             @RequestParam List<String> size,
             @RequestParam Integer minPrice,
             @RequestParam Integer maxPrice,
@@ -41,7 +41,7 @@ public class ProductController {
             @RequestParam Integer pageSize) {
 
         Page<Product> res = productService.getAllProduct(
-                category, color, size, minPrice, maxPrice,
+                category, colors, size, minPrice, maxPrice,
                 minDiscount, sort, stock, pageNumber, pageSize
         );
 

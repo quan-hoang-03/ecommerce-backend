@@ -15,7 +15,7 @@ public class CreateProductRequest {
     private int discountPersent;
     private int quantity;
     private String brand;
-    private String color;
+    private String colors;
     private Set<Size> size = new HashSet<>();
     // danh mục cấp 1
     private String topLavelCategory;
@@ -88,12 +88,12 @@ public class CreateProductRequest {
         this.brand = brand;
     }
 
-    public String getColor() {
-        return color;
+    public String getColors() {
+        return colors;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setColors(String colors) {
+        this.colors = colors;
     }
 
     public Set<Size> getSize() {

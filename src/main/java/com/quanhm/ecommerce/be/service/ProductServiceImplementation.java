@@ -42,7 +42,7 @@ public class ProductServiceImplementation implements ProductService{
             topLevel = categoryRepository.save(topLavelCategory);
         }
 
-        Category secondLevel = categoryRepository.findByNameAndParant(req.getSecondLavelCategory(),topLevel.getName());
+        Category secondLevel = categoryRepository.findByNameAndParent(req.getSecondLavelCategory(),topLevel.getName());
         if(secondLevel == null){
             Category secondLavelCategory = new Category();
             secondLavelCategory.setName(req.getSecondLavelCategory());
@@ -52,7 +52,7 @@ public class ProductServiceImplementation implements ProductService{
             secondLevel = categoryRepository.save(secondLavelCategory);
         }
 
-        Category thirdLevel = categoryRepository.findByNameAndParant(req.getThirdLavelCategory(),secondLevel.getName());
+        Category thirdLevel = categoryRepository.findByNameAndParent(req.getThirdLavelCategory(),secondLevel.getName());
         if(thirdLevel == null){
             Category thirdLavelCategory = new Category();
             thirdLavelCategory.setName(req.getThirdLavelCategory());
@@ -69,7 +69,7 @@ public class ProductServiceImplementation implements ProductService{
         product.setPrice(req.getPrice());
         product.setDiscountPrice(req.getDiscountPrice());
         product.setDiscountPersent(req.getDiscountPersent());
-        product.setColor(req.getColor());
+        product.setColors(req.getColors());
         product.setBrand(req.getBrand());
         product.setImageUrl(req.getImageUrl());
         product.setQuantity(req.getQuantity());
@@ -124,7 +124,7 @@ public class ProductServiceImplementation implements ProductService{
         List<Product> products = productRepository.filterProducts(category,minPrice+"",maxPrice+"",minDiscount+"",sort);
         if (!colors.isEmpty()) {
             products = products.stream()
-                    .filter(p -> colors.stream().anyMatch(c -> c.equalsIgnoreCase(p.getColor())))
+                    .filter(p -> colors.stream().anyMatch(c -> c.equalsIgnoreCase(p.getColors())))
                     .collect(Collectors.toList());
         }
         if(stock!=null){
