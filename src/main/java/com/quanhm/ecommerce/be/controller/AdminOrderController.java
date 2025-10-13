@@ -50,7 +50,11 @@ public class AdminOrderController {
     public ResponseEntity<ApiResponse> deleteOrderHandler(@PathVariable Long orderId,
                                                           @RequestHeader("Authorization") String jwt) throws OrderException {
         orderService.deleteOrder(orderId);
-        return new ResponseEntity<>(new ApiResponse("Xóa sản phẩm thành công", true), HttpStatus.OK);
+
+        ApiResponse res = new ApiResponse();
+        res.setMessage("Xóa sản phẩm thành công");
+        res.setSuccess(true);
+        return new ResponseEntity<>(res,HttpStatus.OK);
     }
 
 

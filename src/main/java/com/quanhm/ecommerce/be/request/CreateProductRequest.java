@@ -17,6 +17,7 @@ public class CreateProductRequest {
     private String brand;
     private String colors;
     private Set<Size> size = new HashSet<>();
+    //vd: /men/clothing/men_shirt
     // danh mục cấp 1
     private String topLavelCategory;
     // danh mục cấp 2

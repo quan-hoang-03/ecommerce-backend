@@ -41,6 +41,6 @@ public class OrderController {
     public ResponseEntity<Order> findOrderById(@PathVariable("id") Long orderId, @RequestHeader("Authorization") String jwt) throws UserException, OrderException {
         User user = userService.findUserProfileByJwt(jwt);
         Order orders = orderService.findOrderById(orderId);
-        return new ResponseEntity<>(orders, HttpStatus.CREATED);
+        return new ResponseEntity<>(orders, HttpStatus.ACCEPTED);
     }
 }

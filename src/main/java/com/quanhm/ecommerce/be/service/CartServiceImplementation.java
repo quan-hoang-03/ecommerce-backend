@@ -32,7 +32,15 @@ public class CartServiceImplementation implements CartService {
     @Override
     public String addCartItem(Long userId, AddItemRequest req) throws ProductExpection {
         Cart cart = cartRepository.findByUserId(userId);
+        if (cart == null) {
+            // Tạo giỏ hàng mới cho user
+            User user = new User();
+            user.setId(userId);
+            cart = createCart(user);
+        }
+        // Lấy thông tin sản phẩm
         Product product = productService.findProductById(req.getProductId());
+        // Kiểm tra xem sản phẩm này đã tồn tại trong giỏ hàng chưa
         CartItem isPresent = cartItemService.isCartItemExist(cart,product,req.getSize(),userId);
         if(isPresent == null){
             CartItem cartItem = new CartItem();
