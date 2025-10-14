@@ -9,8 +9,6 @@ import com.quanhm.ecommerce.be.model.Order;
 import com.quanhm.ecommerce.be.repository.OrderRepository;
 import com.quanhm.ecommerce.be.service.OrderService;
 import com.quanhm.ecommerce.be.service.PayPalService;
-
-import com.quanhm.ecommerce.be.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -18,14 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/paypal")
 public class PaymentController {
+
     @Value("${paypal.client-id}")
     private String clientId;
 
@@ -41,18 +36,15 @@ public class PaymentController {
     @Autowired
     private OrderService orderService;
 
-    // 🧩 Tạo PayPal Client theo môi trường
-    private PayPalHttpClient payPalClient() {
-        PayPalEnvironment environment = "sandbox".equalsIgnoreCase(mode)
-                ? new PayPalEnvironment.Sandbox(clientId, clientSecret)
-                : new PayPalEnvironment.Live(clientId, clientSecret);
-        return new PayPalHttpClient(environment);
-    }
+    @Autowired
+    private OrderRepository orderRepository;
 
+    // ✅ 1️⃣ Tạo link thanh toán
     @PostMapping("/payments/{orderId}")
-    public ResponseEntity<PaymentListResponse> createPaymentLink(@PathVariable Long orderId) throws IOException, OrderException {
-        Order order = orderService.findOrderById(orderId);
+    public ResponseEntity<PaymentListResponse> createPaymentLink(@PathVariable Long orderId)
+            throws IOException, OrderException {
 
+        Order order = orderService.findOrderById(orderId);
         double amount = order.getTotalPrice();
 
         String returnUrl = "http://localhost:3000/payment/success/" + orderId;
@@ -65,5 +57,34 @@ public class PaymentController {
         res.setPayment_link_id("paypal-" + orderId);
 
         return new ResponseEntity<>(res, HttpStatus.CREATED);
+    }
+
+    // ✅ 2️⃣ Capture thanh toán sau khi người dùng trả tiền xong
+    @GetMapping("/capture/{paypalOrderId}/{orderId}")
+    public ResponseEntity<String> capturePayment(@PathVariable String paypalOrderId,
+                                                 @PathVariable Long orderId)
+            throws IOException, OrderException {
+
+        PayPalEnvironment environment = "live".equalsIgnoreCase(mode)
+                ? new PayPalEnvironment.Live(clientId, clientSecret)
+                : new PayPalEnvironment.Sandbox(clientId, clientSecret);
+
+        PayPalHttpClient client = new PayPalHttpClient(environment);
+
+        OrdersCaptureRequest request = new OrdersCaptureRequest(paypalOrderId);
+        request.requestBody(new OrderRequest());
+
+        HttpResponse<com.paypal.orders.Order> response = client.execute(request);
+        com.paypal.orders.Order captureOrderResponse = response.result();
+
+        if ("COMPLETED".equals(captureOrderResponse.status())) {
+            Order order = orderService.findOrderById(orderId);
+            order.setOrderStatus("PLACED");
+            order.getPaymentDetails().setPaymentStatus("COMPLETED");
+            order.setPaypalOrderId(captureOrderResponse.id());
+            orderRepository.save(order);
+        }
+
+        return ResponseEntity.ok("Payment captured successfully");
     }
 }

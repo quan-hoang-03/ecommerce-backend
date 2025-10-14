@@ -44,6 +44,8 @@ public class Order {
 
     private LocalDateTime createdAt;
 
+    private String paypalOrderId;
+
     public Order() {
 
     }
@@ -176,4 +178,13 @@ public class Order {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public String getPaypalOrderId() {
+        return paypalOrderId;
+    }
+
+    public void setPaypalOrderId(String paypalOrderId) {
+        this.paypalOrderId = paypalOrderId;
+    }
+
 }

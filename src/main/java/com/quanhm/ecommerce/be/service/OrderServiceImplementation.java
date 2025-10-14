@@ -90,7 +90,7 @@ public class OrderServiceImplementation implements OrderService {
             return opt.get();
         }
 
-        throw new OrderException("Id Đơn hàng đã tồn tại" + orderId);
+        throw new OrderException("Không tìm thấy đơn hàng với ID: " + orderId);
     }
 
     @Override
