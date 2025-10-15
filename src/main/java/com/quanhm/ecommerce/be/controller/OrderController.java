@@ -24,10 +24,10 @@ public class OrderController {
     private UserService userService;
 
     @PostMapping("/add")
-    public ResponseEntity<List<Order>> createOrder(@RequestBody Address shippingAddress, @RequestHeader("Authorization") String jwt) throws UserException {
+    public ResponseEntity<Order> createOrder(@RequestBody Address shippingAddress, @RequestHeader("Authorization") String jwt) throws UserException {
         User user = userService.findUserProfileByJwt(jwt);
-        List<Order> orders = orderService.usersOrderHistory(user.getId());
-        return new ResponseEntity<>(orders, HttpStatus.CREATED);
+        Order orders = orderService.createOrder(user,shippingAddress);
+        return new ResponseEntity<Order>(orders, HttpStatus.CREATED);
     }
 
     @GetMapping("/user")
