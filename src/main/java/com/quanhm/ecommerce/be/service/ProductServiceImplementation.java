@@ -3,9 +3,12 @@ package com.quanhm.ecommerce.be.service;
 import com.quanhm.ecommerce.be.exception.ProductExpection;
 import com.quanhm.ecommerce.be.model.Category;
 import com.quanhm.ecommerce.be.model.Product;
+import com.quanhm.ecommerce.be.repository.CartItemRepository;
 import com.quanhm.ecommerce.be.repository.CategoryRepository;
+import com.quanhm.ecommerce.be.repository.OrderItemRepository;
 import com.quanhm.ecommerce.be.repository.ProductRepository;
 import com.quanhm.ecommerce.be.request.CreateProductRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -24,11 +27,19 @@ public class ProductServiceImplementation implements ProductService{
     private ProductRepository productRepository;
     private UserService userService;
     private CategoryRepository categoryRepository;
+    @Autowired
+    private CartItemRepository cartItemRepository;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
-    public ProductServiceImplementation(ProductRepository productRepository,UserService userService,CategoryRepository categoryRepository){
+
+
+    public ProductServiceImplementation(ProductRepository productRepository,UserService userService,CategoryRepository categoryRepository,CartItemRepository cartItemRepository,OrderItemRepository orderItemRepository){
         this.productRepository = productRepository;
         this.userService = userService;
         this.categoryRepository = categoryRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     @Override
@@ -84,6 +95,10 @@ public class ProductServiceImplementation implements ProductService{
     @Override
     public String deleteProduct(Long productId) throws ProductExpection {
         Product product = findProductById(productId);
+        // Xóa các CartItem chứa sản phẩm này
+        cartItemRepository.deleteAllByProductId(productId);
+        orderItemRepository.deleteByProductOrder(productId);
+        // Xóa các Size liên kết
         product.getSizes().clear();
         productRepository.delete(product);
         return "Xóa sản phẩm thành công";
