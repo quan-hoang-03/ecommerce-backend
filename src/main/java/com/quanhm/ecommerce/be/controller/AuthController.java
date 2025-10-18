@@ -56,6 +56,7 @@ public class AuthController {
         createdUser.setPassWord(passwordEncoder.encode(passWord));
         createdUser.setFirstName(firstName);
         createdUser.setLastName(lastName);
+        createdUser.setRole("USER");
 
         User savedUser = userRepository.save(createdUser);
         Cart cart = cartService.createCart(savedUser);
@@ -78,8 +79,11 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtProvide.generateToken(authentication);
 
+        User user = userRepository.findByEmail(username);
+
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwt(token);
+        authResponse.setRole(user.getRole());
         authResponse.setMessage("Đăng nhập thành công");
         return new ResponseEntity<AuthResponse>(authResponse, HttpStatus.CREATED);
 

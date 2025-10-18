@@ -15,6 +15,7 @@ public class JwtProvide {
     SecretKey key = Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
 
     public String generateToken(Authentication auth) {
+
         String jwt = Jwts.builder()
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + 846000000)) // 10 ngày

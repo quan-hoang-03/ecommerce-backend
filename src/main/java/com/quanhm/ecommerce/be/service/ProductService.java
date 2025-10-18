@@ -25,4 +25,6 @@ public interface ProductService {
                                        Integer pageNumber, Integer pageSize);
 
     public List<Product> searchProduct(String title, String description);
+
+
 }

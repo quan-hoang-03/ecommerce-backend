@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -134,27 +135,65 @@ public class ProductServiceImplementation implements ProductService{
 
 
     @Override
-    public Page<Product> getAllProduct(String category, List<String> colors, List<String> sizes, Integer minPrice, Integer maxPrice, Integer minDiscount, String sort, String stock, Integer pageNumber, Integer pageSize) {
-        Pageable pageble = PageRequest.of(pageNumber,pageSize);
-        List<Product> products = productRepository.filterProducts(category,minPrice+"",maxPrice+"",minDiscount+"",sort);
-        if (!colors.isEmpty()) {
+    public Page<Product> getAllProduct(
+            String category,
+            List<String> colors,
+            List<String> sizes,
+            Integer minPrice,
+            Integer maxPrice,
+            Integer minDiscount,
+            String sort,
+            String stock,
+            Integer pageNumber,
+            Integer pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        // Lấy toàn bộ sản phẩm sau khi filter theo category, price, discount, sort
+        List<Product> products = productRepository.filterProducts(
+                category,
+                String.valueOf(minPrice),
+                String.valueOf(maxPrice),
+                String.valueOf(minDiscount),
+                sort
+        );
+
+        // Lọc theo màu (nếu có)
+        if (colors != null && !colors.isEmpty()) {
             products = products.stream()
                     .filter(p -> colors.stream().anyMatch(c -> c.equalsIgnoreCase(p.getColors())))
                     .collect(Collectors.toList());
         }
-        if(stock!=null){
-            if(stock.equals("in_stock")){
-                products = products.stream().filter(p -> p.getQuantity() > 0).collect(Collectors.toList());
-            }else if(stock.equals("out_stock")){
-                products = products.stream().filter(p -> p.getQuantity() <1).collect(Collectors.toList());
+
+        // Lọc theo stock (nếu có)
+        if (stock != null) {
+            if (stock.equals("in_stock")) {
+                products = products.stream()
+                        .filter(p -> p.getQuantity() > 0)
+                        .collect(Collectors.toList());
+            } else if (stock.equals("out_stock")) {
+                products = products.stream()
+                        .filter(p -> p.getQuantity() < 1)
+                        .collect(Collectors.toList());
             }
         }
-        int startIndex = (int)pageble.getOffset();
-        int endIndex = Math.min(startIndex + pageble.getPageSize(), products.size());
-        List<Product> pageContent = products.subList(startIndex, endIndex);
-        Page<Product> filteredProducts = new PageImpl<>(pageContent,pageble,products.size());
-        return filteredProducts;
+
+        // ⚙️ Phân trang an toàn
+        int startIndex = (int) pageable.getOffset();
+        int endIndex = Math.min(startIndex + pageable.getPageSize(), products.size());
+
+        List<Product> pageContent;
+
+        // Nếu không còn dữ liệu cho trang này → trả về list rỗng
+        if (startIndex >= products.size()) {
+            pageContent = Collections.emptyList();
+        } else {
+            pageContent = products.subList(startIndex, endIndex);
+        }
+
+        return new PageImpl<>(pageContent, pageable, products.size());
     }
+
 
     @Override
     public List<Product> searchProduct(String title, String description) {
@@ -168,6 +207,8 @@ public class ProductServiceImplementation implements ProductService{
             return List.of();
         }
     }
-
+    public List<Product> findAllProducts() {
+        return productRepository.findAll();
+    }
 
 }
