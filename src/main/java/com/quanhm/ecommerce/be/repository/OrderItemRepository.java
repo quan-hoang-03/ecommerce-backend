@@ -14,4 +14,8 @@ public interface OrderItemRepository extends JpaRepository <OrderItem,Long> {
     @Query("DELETE FROM OrderItem oi WHERE oi.product.id = :productId")
     void deleteByProductOrder(@Param("productId") Long productId);
 
+    // Tổng số lượng hàng bán được (từ các đơn đã giao)
+    @Query("SELECT SUM(oi.quantity) FROM OrderItem oi JOIN oi.order o WHERE o.orderStatus = 'DELIVERED'")
+    Long getTotalSalesQuantity();
+
 }

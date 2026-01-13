@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/admin")
 public class AdminStatisticsController {
@@ -17,5 +19,10 @@ public class AdminStatisticsController {
     @GetMapping("/sales-statistics")
     public ResponseEntity<?> getMonthlySalesQuantity() {
         return ResponseEntity.ok(statisticsService.getMonthlySalesQuantity());
+    }
+
+    @GetMapping("/overview-statistics")
+    public ResponseEntity<Map<String, Object>> getOverviewStatistics() {
+        return ResponseEntity.ok(statisticsService.getOverviewStatistics());
     }
 }
