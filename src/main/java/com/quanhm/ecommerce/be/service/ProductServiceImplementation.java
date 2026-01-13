@@ -106,11 +106,72 @@ public class ProductServiceImplementation implements ProductService{
     }
 
     @Override
-    public Product updateProduct(Long productId, Product req) throws ProductExpection {
+    public Product updateProduct(Long productId, CreateProductRequest req) throws ProductExpection {
         Product product = findProductById(productId);
-        if(req.getQuantity() != 0){
-            product.setQuantity(req.getQuantity());
 
+        // Update category nếu có thay đổi
+        if (req.getTopLavelCategory() != null && req.getSecondLavelCategory() != null && req.getThirdLavelCategory() != null) {
+            Category topLevel = categoryRepository.findByName(req.getTopLavelCategory());
+            if (topLevel == null) {
+                Category topLavelCategory = new Category();
+                topLavelCategory.setName(req.getTopLavelCategory());
+                topLavelCategory.setLevel(1);
+                topLevel = categoryRepository.save(topLavelCategory);
+            }
+
+            Category secondLevel = categoryRepository.findByNameAndParent(req.getSecondLavelCategory(), topLevel.getName());
+            if (secondLevel == null) {
+                Category secondLavelCategory = new Category();
+                secondLavelCategory.setName(req.getSecondLavelCategory());
+                secondLavelCategory.setParentCategory(topLevel);
+                secondLavelCategory.setLevel(2);
+                secondLevel = categoryRepository.save(secondLavelCategory);
+            }
+
+            Category thirdLevel = categoryRepository.findByNameAndParent(req.getThirdLavelCategory(), secondLevel.getName());
+            if (thirdLevel == null) {
+                Category thirdLavelCategory = new Category();
+                thirdLavelCategory.setName(req.getThirdLavelCategory());
+                thirdLavelCategory.setParentCategory(secondLevel);
+                thirdLavelCategory.setLevel(3);
+                thirdLevel = categoryRepository.save(thirdLavelCategory);
+            }
+
+            product.setCategory(thirdLevel);
+        }
+
+        // Update các field khác
+        if (req.getTitle() != null && !req.getTitle().trim().isEmpty()) {
+            product.setTitle(req.getTitle());
+        }
+        if (req.getDescription() != null) {
+            product.setDescription(req.getDescription());
+        }
+        if (req.getPrice() > 0) {
+            product.setPrice(req.getPrice());
+        }
+        if (req.getDiscountPrice() >= 0) {
+            product.setDiscountPrice(req.getDiscountPrice());
+        }
+        if (req.getDiscountPersent() >= 0) {
+            product.setDiscountPersent(req.getDiscountPersent());
+        }
+        if (req.getQuantity() >= 0) {
+            product.setQuantity(req.getQuantity());
+        }
+        if (req.getBrand() != null && !req.getBrand().trim().isEmpty()) {
+            product.setBrand(req.getBrand());
+        }
+        if (req.getColors() != null) {
+            product.setColors(req.getColors());
+        }
+        if (req.getImageUrl() != null && !req.getImageUrl().trim().isEmpty()) {
+            product.setImageUrl(req.getImageUrl());
+        }
+        if (req.getSize() != null && !req.getSize().isEmpty()) {
+            // Xóa sizes cũ và set sizes mới
+            product.getSizes().clear();
+            product.setSizes(req.getSize());
         }
 
         return productRepository.save(product);

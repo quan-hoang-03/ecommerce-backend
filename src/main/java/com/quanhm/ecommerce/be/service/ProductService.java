@@ -13,7 +13,7 @@ public interface ProductService {
 
     public String deleteProduct(Long productId) throws ProductExpection;
 
-    public Product updateProduct(Long productId, Product req) throws ProductExpection;
+    public Product updateProduct(Long productId, CreateProductRequest req) throws ProductExpection;
 
     public Product findProductById(Long id) throws ProductExpection;
 

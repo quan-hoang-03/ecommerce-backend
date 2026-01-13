@@ -74,10 +74,59 @@ public class AdminProductController {
         return  new ResponseEntity<>(products, HttpStatus.OK);
     }
 
-    @PostMapping("/{productId}/update")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long productId, @RequestBody Product req) throws ProductExpection {
+    @PutMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable Long productId,
+            @RequestPart("product") CreateProductRequest req,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile
+    ) throws IOException, ProductExpection {
+
+        // Lấy sản phẩm hiện tại
+        Product existingProduct = productService.findProductById(productId);
+        
+        // Nếu có ảnh mới thì lưu file và xóa ảnh cũ
+        if (imageFile != null && !imageFile.isEmpty()) {
+            // Validate file type
+            String contentType = imageFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new ProductExpection("File phải là hình ảnh");
+            }
+            
+            // Xóa ảnh cũ nếu có
+            if (existingProduct.getImageUrl() != null && !existingProduct.getImageUrl().isEmpty()) {
+                try {
+                    String oldFileName = existingProduct.getImageUrl().replace("/uploads/", "");
+                    Path oldFilePath = Paths.get("uploads").resolve(oldFileName);
+                    if (Files.exists(oldFilePath)) {
+                        Files.delete(oldFilePath);
+                    }
+                } catch (Exception e) {
+                    // Bỏ qua lỗi nếu không xóa được file cũ
+                    System.err.println("Không thể xóa ảnh cũ: " + e.getMessage());
+                }
+            }
+
+            // Lưu ảnh mới
+            Path uploadDir = Paths.get("uploads");
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+
+            String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+            Path filePath = uploadDir.resolve(fileName);
+            Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Gán link ảnh mới cho product
+            req.setImageUrl("/uploads/" + fileName);
+        } else {
+            // Nếu không có ảnh mới, giữ nguyên ảnh cũ
+            if (existingProduct.getImageUrl() != null) {
+                req.setImageUrl(existingProduct.getImageUrl());
+            }
+        }
+
         Product product = productService.updateProduct(productId, req);
-        return new ResponseEntity<Product>(product, HttpStatus.CREATED);
+        return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
     @PostMapping("/creates")

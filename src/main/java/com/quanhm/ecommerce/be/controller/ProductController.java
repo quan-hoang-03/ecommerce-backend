@@ -79,7 +79,7 @@ public class ProductController {
     @PostMapping("/products/update/{productId}")
     public ResponseEntity<Product> updateProductHandler(
             @PathVariable Long productId,
-            @RequestBody Product req) throws ProductExpection {
+            @RequestBody CreateProductRequest req) throws ProductExpection {
 
         Product updatedProduct = productService.updateProduct(productId, req);
         return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
