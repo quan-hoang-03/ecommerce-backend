@@ -28,6 +28,9 @@ public class Product {
     @Column(name="quantity")
     private int quantity;
 
+    @Column(name="sold_quantity")
+    private int soldQuantity = 0;
+
     @Column(name="brand")
     private String brand;
 
@@ -111,6 +114,14 @@ public class Product {
         this.quantity = quantity;
     }
 
+    public int getSoldQuantity() {
+        return soldQuantity;
+    }
+
+    public void setSoldQuantity(int soldQuantity) {
+        this.soldQuantity = soldQuantity;
+    }
+
     public String getBrand() {
         return brand;
     }
@@ -187,7 +198,7 @@ public class Product {
     }
 
     public Product(Long id, String title, String description, int price, int discountPrice,
-                   int discountPersent, int quantity, String brand, String colors, Set<Size> sizes,
+                   int discountPersent, int quantity, int soldQuantity, String brand, String colors, Set<Size> sizes,
                    String imageUrl, List<Rating> ratings, List<Review> reviews, int numRatings,
                    Category category, LocalDateTime createdAt) {
         this.id = id;
@@ -197,6 +208,7 @@ public class Product {
         this.discountPrice = discountPrice;
         this.discountPersent = discountPersent;
         this.quantity = quantity;
+        this.soldQuantity = soldQuantity;
         this.brand = brand;
         this.colors = colors;
         this.sizes = sizes;

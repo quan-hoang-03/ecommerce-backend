@@ -19,14 +19,16 @@ public class OrderServiceImplementation implements OrderService {
     private UserRepository userRepository;
     private OrderItemService orderItemService;
     private OrderItemRepository orderItemRepository;
+    private ProductRepository productRepository;
 
-    public OrderServiceImplementation(OrderRepository orderRepository, CartService cartService, AddressRepository addressRepository, UserRepository userRepository,OrderItemService orderItemService, OrderItemRepository orderItemRepository){
+    public OrderServiceImplementation(OrderRepository orderRepository, CartService cartService, AddressRepository addressRepository, UserRepository userRepository,OrderItemService orderItemService, OrderItemRepository orderItemRepository, ProductRepository productRepository){
         this.orderRepository = orderRepository;
         this.cartService = cartService;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.orderItemService = orderItemService;
         this.orderItemRepository = orderItemRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -111,7 +113,31 @@ public class OrderServiceImplementation implements OrderService {
     public Order confirmOrder(Long orderId) throws OrderException {
         Order order = findOrderById(orderId);
         order.setOrderStatus("CONFIRMED");
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+        
+        // Cập nhật kho hàng khi đơn hàng được xác nhận
+        updateInventoryOnOrderConfirmed(order);
+        
+        return savedOrder;
+    }
+    
+    // Hàm cập nhật kho hàng khi đơn hàng được xác nhận
+    private void updateInventoryOnOrderConfirmed(Order order) {
+        for (OrderItem orderItem : order.getOrderItems()) {
+            Product product = orderItem.getProduct();
+            
+            // Giảm số lượng trong kho
+            int newQuantity = product.getQuantity() - orderItem.getQuantity();
+            if (newQuantity < 0) {
+                newQuantity = 0; // Đảm bảo không âm
+            }
+            product.setQuantity(newQuantity);
+            
+            // Tăng số lượng đã bán
+            product.setSoldQuantity(product.getSoldQuantity() + orderItem.getQuantity());
+            
+            productRepository.save(product);
+        }
     }
 
     @Override
@@ -131,8 +157,35 @@ public class OrderServiceImplementation implements OrderService {
     @Override
     public Order cancelOrder(Long orderId) throws OrderException {
         Order order = findOrderById(orderId);
+        
+        // Nếu đơn hàng đã được confirm (đã trừ kho), thì trả lại kho
+        if ("CONFIRMED".equals(order.getOrderStatus()) || 
+            "SHIPPED".equals(order.getOrderStatus()) || 
+            "DELIVERED".equals(order.getOrderStatus())) {
+            restoreInventoryOnOrderCancel(order);
+        }
+        
         order.setOrderStatus("CANCELLED");
         return orderRepository.save(order);
+    }
+    
+    // Hàm trả lại kho hàng khi đơn hàng bị hủy
+    private void restoreInventoryOnOrderCancel(Order order) {
+        for (OrderItem orderItem : order.getOrderItems()) {
+            Product product = orderItem.getProduct();
+            
+            // Trả lại số lượng vào kho
+            product.setQuantity(product.getQuantity() + orderItem.getQuantity());
+            
+            // Giảm số lượng đã bán
+            int newSoldQuantity = product.getSoldQuantity() - orderItem.getQuantity();
+            if (newSoldQuantity < 0) {
+                newSoldQuantity = 0; // Đảm bảo không âm
+            }
+            product.setSoldQuantity(newSoldQuantity);
+            
+            productRepository.save(product);
+        }
     }
 
     @Override
