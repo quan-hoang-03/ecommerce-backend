@@ -15,6 +15,7 @@ public class Product {
 
     private String title;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
     private int price;

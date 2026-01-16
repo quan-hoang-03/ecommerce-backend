@@ -33,6 +33,14 @@ public class AppConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/signup", "/auth/signin").permitAll()
+                        // Public APIs - no authentication required
+                        .requestMatchers("/api/category/**").permitAll()
+                        .requestMatchers("/api/categories/**").permitAll()
+                        .requestMatchers("/api/products").permitAll()
+                        .requestMatchers("/api/products/{productId}").permitAll()
+                        .requestMatchers("/api/products/search").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
+                        // All other /api/** endpoints require authentication
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 )

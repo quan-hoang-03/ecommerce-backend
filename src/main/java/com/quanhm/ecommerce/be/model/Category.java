@@ -13,6 +13,11 @@ public class Category {
     @Size(max=50)
     private String name;
 
+    // Tên hiển thị đẹp (VD: "Trang điểm" thay vì "trang_diem")
+    @Column(name = "display_name")
+    @Size(max=100)
+    private String displayName;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name= "parent_category_id")
     private Category parentCategory;
@@ -22,9 +27,10 @@ public class Category {
     public Category() {
     }
 
-    public Category(Long id, String name, Category parentCategory, int level) {
+    public Category(Long id, String name, String displayName, Category parentCategory, int level) {
         this.id = id;
         this.name = name;
+        this.displayName = displayName;
         this.parentCategory = parentCategory;
         this.level = level;
     }
@@ -43,6 +49,15 @@ public class Category {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDisplayName() {
+        // Trả về displayName nếu có, nếu không thì trả về name
+        return displayName != null && !displayName.isEmpty() ? displayName : name;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public Category getParentCategory() {

@@ -1,7 +1,9 @@
 package com.quanhm.ecommerce.be.controller;
 
 import com.quanhm.ecommerce.be.exception.ProductExpection;
+import com.quanhm.ecommerce.be.model.Category;
 import com.quanhm.ecommerce.be.model.Product;
+import com.quanhm.ecommerce.be.repository.CategoryRepository;
 import com.quanhm.ecommerce.be.request.CreateProductRequest;
 import com.quanhm.ecommerce.be.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +22,41 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     // Tìm sản phẩm theo category
     @GetMapping("/category/{categoryName}")
     public List<Product> findByCategory(@PathVariable String categoryName) {
         return productService.findProductByCategory(categoryName);
+    }
+
+    // Lấy tất cả categories có sản phẩm (dùng cho homepage)
+    @GetMapping("/categories/with-products")
+    public ResponseEntity<List<Category>> getCategoriesWithProducts() {
+        List<Category> categories = categoryRepository.findCategoriesWithProducts();
+        return new ResponseEntity<>(categories, HttpStatus.OK);
+    }
+
+    // Lấy tất cả categories theo level
+    @GetMapping("/categories")
+    public ResponseEntity<List<Category>> getAllCategories(
+            @RequestParam(required = false) Integer level) {
+        List<Category> categories;
+        if (level != null) {
+            categories = categoryRepository.findByLevel(level);
+        } else {
+            categories = categoryRepository.findAll();
+        }
+        return new ResponseEntity<>(categories, HttpStatus.OK);
+    }
+
+    // Lấy danh mục cho navigation menu (public API)
+    @GetMapping("/categories/navigation")
+    public ResponseEntity<List<Category>> getCategoriesForNavigation() {
+        // Lấy tất cả categories, sắp xếp theo level
+        List<Category> categories = categoryRepository.findAllByOrderByLevelAscNameAsc();
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
 //    Lấy danh sách sản phẩm
