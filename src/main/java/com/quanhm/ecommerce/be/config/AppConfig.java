@@ -33,6 +33,8 @@ public class AppConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/signup", "/auth/signin").permitAll()
+                        // WebSocket endpoints
+                        .requestMatchers("/ws/**").permitAll()
                         // Public APIs - no authentication required
                         .requestMatchers("/api/category/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
