@@ -76,4 +76,10 @@ public class CartItemServiceImplementation implements CartItemService{
         }
         throw new CartItemException("Không tìm thấy danh mục này");
     }
+
+    @Override
+    public void clearCart(Long userId) throws UserException {
+        userService.findUserById(userId); // Kiểm tra user tồn tại
+        cartItemRepository.deleteByUserItemCartId(userId);
+    }
 }

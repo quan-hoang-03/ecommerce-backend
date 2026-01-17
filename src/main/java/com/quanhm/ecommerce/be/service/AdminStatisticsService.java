@@ -8,6 +8,7 @@ import com.quanhm.ecommerce.be.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,5 +76,40 @@ public class AdminStatisticsService {
         stats.put("totalSalesQuantity", getTotalSalesQuantity());
         stats.put("totalSalesValue", getTotalSalesValue());
         return stats;
+    }
+
+    // Lấy dữ liệu doanh số và đơn hàng theo tháng cho biểu đồ
+    public List<Map<String, Object>> getMonthlySalesAndOrders() {
+        List<Object[]> result = orderRepository.getMonthlySalesAndOrders();
+        
+        // Tạo map để đảm bảo có đủ 12 tháng
+        Map<Integer, Map<String, Object>> monthMap = new HashMap<>();
+        for (int i = 1; i <= 12; i++) {
+            Map<String, Object> monthData = new HashMap<>();
+            monthData.put("month", "T" + i);
+            monthData.put("sales", 0.0);
+            monthData.put("orders", 0L);
+            monthMap.put(i, monthData);
+        }
+        
+        // Cập nhật dữ liệu từ database
+        for (Object[] row : result) {
+            Integer month = (Integer) row[0];
+            Double sales = row[1] != null ? ((Number) row[1]).doubleValue() : 0.0;
+            Long orders = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+            
+            Map<String, Object> monthData = monthMap.get(month);
+            if (monthData != null) {
+                monthData.put("sales", sales);
+                monthData.put("orders", orders);
+            }
+        }
+        
+        // Sắp xếp theo số tháng (1-12) thay vì string
+        List<Map<String, Object>> sortedList = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            sortedList.add(monthMap.get(i));
+        }
+        return sortedList;
     }
 }

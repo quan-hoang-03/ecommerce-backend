@@ -30,6 +30,17 @@ public interface OrderRepository extends JpaRepository <Order, Long>{
             "ORDER BY MONTH(o.createdAt)")
     List<Object[]> getMonthlySalesQuantity();
 
+    // Thống kê doanh số và số đơn hàng theo tháng (cho biểu đồ)
+    @Query("SELECT MONTH(o.orderDate) AS month, " +
+            "COALESCE(SUM(o.totalPrice), 0) AS sales, " +
+            "COUNT(o.id) AS orders " +
+            "FROM Order o " +
+            "WHERE o.orderStatus IN ('PLACED', 'CONFIRMED', 'SHIPPED', 'DELIVERED') " +
+            "AND YEAR(o.orderDate) = YEAR(CURRENT_DATE) " +
+            "GROUP BY MONTH(o.orderDate) " +
+            "ORDER BY MONTH(o.orderDate)")
+    List<Object[]> getMonthlySalesAndOrders();
+
     List<Order> findByShippingAddress(Address address);
 
 }

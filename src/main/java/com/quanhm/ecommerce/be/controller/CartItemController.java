@@ -54,4 +54,19 @@ public class CartItemController {
 
         return new ResponseEntity<>(updatedCartItem, HttpStatus.OK);
     }
+
+    @PostMapping("/clear")
+    @Operation(description = "Clear All Cart Items")
+    public ResponseEntity<ApiResponse> clearCart(
+            @RequestHeader("Authorization") String jwt)
+            throws UserException {
+        User user = userService.findUserProfileByJwt(jwt);
+        cartItemService.clearCart(user.getId());
+
+        ApiResponse res = new ApiResponse();
+        res.setMessage("Đã xóa tất cả sản phẩm khỏi giỏ hàng");
+        res.setSuccess(true);
+
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
 }

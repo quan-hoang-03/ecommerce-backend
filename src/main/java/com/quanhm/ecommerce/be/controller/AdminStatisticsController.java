@@ -21,6 +21,11 @@ public class AdminStatisticsController {
         return ResponseEntity.ok(statisticsService.getMonthlySalesQuantity());
     }
 
+    @GetMapping("/monthly-sales")
+    public ResponseEntity<?> getMonthlySalesAndOrders() {
+        return ResponseEntity.ok(statisticsService.getMonthlySalesAndOrders());
+    }
+
     @GetMapping("/overview-statistics")
     public ResponseEntity<Map<String, Object>> getOverviewStatistics() {
         return ResponseEntity.ok(statisticsService.getOverviewStatistics());

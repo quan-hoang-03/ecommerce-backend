@@ -30,10 +30,10 @@ public class RatingController {
         return new ResponseEntity<Rating>(rating, HttpStatus.CREATED);
     }
 
-    @GetMapping("product/{prodcutId}")
-    public ResponseEntity<List<Rating>> getProductRating(@PathVariable Long productId, @RequestHeader("Authorization") String jwt) throws UserException, ProductExpection{
-        User user = userService.findUserProfileByJwt(jwt);
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<List<Rating>> getProductRating(@PathVariable Long productId, @RequestHeader(value = "Authorization", required = false) String jwt) throws UserException, ProductExpection{
+        // JWT không bắt buộc để xem ratings
         List<Rating> ratings = ratingService.getProductRating(productId);
-        return new ResponseEntity<>(ratings, HttpStatus.CREATED);
+        return new ResponseEntity<>(ratings, HttpStatus.OK);
     }
 }

@@ -20,8 +20,9 @@ public class OrderServiceImplementation implements OrderService {
     private OrderItemService orderItemService;
     private OrderItemRepository orderItemRepository;
     private ProductRepository productRepository;
+    private CartItemService cartItemService;
 
-    public OrderServiceImplementation(OrderRepository orderRepository, CartService cartService, AddressRepository addressRepository, UserRepository userRepository,OrderItemService orderItemService, OrderItemRepository orderItemRepository, ProductRepository productRepository){
+    public OrderServiceImplementation(OrderRepository orderRepository, CartService cartService, AddressRepository addressRepository, UserRepository userRepository,OrderItemService orderItemService, OrderItemRepository orderItemRepository, ProductRepository productRepository, CartItemService cartItemService){
         this.orderRepository = orderRepository;
         this.cartService = cartService;
         this.addressRepository = addressRepository;
@@ -29,6 +30,7 @@ public class OrderServiceImplementation implements OrderService {
         this.orderItemService = orderItemService;
         this.orderItemRepository = orderItemRepository;
         this.productRepository = productRepository;
+        this.cartItemService = cartItemService;
     }
 
     @Override
@@ -106,7 +108,17 @@ public class OrderServiceImplementation implements OrderService {
         Order order = findOrderById(orderId);
         order.setOrderStatus("PLACED");
         order.getPaymentDetails().setPaymentStatus("COMPLETED");
-        return order;
+        Order savedOrder = orderRepository.save(order);
+        
+        // Xóa giỏ hàng sau khi thanh toán thành công
+        try {
+            cartItemService.clearCart(order.getUser().getId());
+        } catch (Exception e) {
+            // Log lỗi nhưng không throw để không ảnh hưởng đến việc đặt hàng
+            System.err.println("Lỗi khi xóa giỏ hàng: " + e.getMessage());
+        }
+        
+        return savedOrder;
     }
 
     @Override
