@@ -2,12 +2,13 @@ package com.quanhm.ecommerce.be.model;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 public class Address {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name="first_name")
@@ -26,6 +27,7 @@ public class Address {
     private String state;
 
     @Column(name="zip_code")
+    @JsonProperty("zip")
     private String zipCode;
 
     @ManyToOne

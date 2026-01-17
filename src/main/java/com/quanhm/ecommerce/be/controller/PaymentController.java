@@ -41,22 +41,35 @@ public class PaymentController {
 
     // ✅ 1️⃣ Tạo link thanh toán
     @PostMapping("/payments/{orderId}")
-    public ResponseEntity<PaymentListResponse> createPaymentLink(@PathVariable Long orderId)
-            throws IOException, OrderException {
+    public ResponseEntity<?> createPaymentLink(@PathVariable Long orderId) {
+        try {
+            Order order = orderService.findOrderById(orderId);
+            double amount = order.getTotalPrice();
+            
+            // Log để debug
+            System.out.println("Creating PayPal payment for order: " + orderId + ", amount: " + amount);
+            
+            // Kiểm tra amount hợp lệ
+            if (amount <= 0) {
+                return ResponseEntity.badRequest().body("Số tiền không hợp lệ: " + amount);
+            }
 
-        Order order = orderService.findOrderById(orderId);
-        double amount = order.getTotalPrice();
+            String returnUrl = "http://localhost:3000/payment/success/" + orderId;
+            String cancelUrl = "http://localhost:3000/payment/cancel/" + orderId;
 
-        String returnUrl = "http://localhost:3000/payment/success/" + orderId;
-        String cancelUrl = "http://localhost:3000/payment/cancel/" + orderId;
+            String approvalUrl = payPalService.createOrder(amount, returnUrl, cancelUrl);
 
-        String approvalUrl = payPalService.createOrder(amount, returnUrl, cancelUrl);
+            PaymentListResponse res = new PaymentListResponse();
+            res.setPayment_link_url(approvalUrl);
+            res.setPayment_link_id("paypal-" + orderId);
 
-        PaymentListResponse res = new PaymentListResponse();
-        res.setPayment_link_url(approvalUrl);
-        res.setPayment_link_id("paypal-" + orderId);
-
-        return new ResponseEntity<>(res, HttpStatus.CREATED);
+            return new ResponseEntity<>(res, HttpStatus.CREATED);
+        } catch (Exception e) {
+            System.err.println("PayPal payment error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi tạo thanh toán: " + e.getMessage());
+        }
     }
 
     // ✅ 2️⃣ Capture thanh toán sau khi người dùng trả tiền xong

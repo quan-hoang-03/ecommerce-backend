@@ -198,4 +198,13 @@ public class OrderServiceImplementation implements OrderService {
         Order order = findOrderById(orderId);
         orderRepository.deleteById(orderId);
     }
+
+    @Override
+    public Order updateOrderAddress(Long orderId, Long addressId) throws OrderException {
+        Order order = findOrderById(orderId);
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new OrderException("Không tìm thấy địa chỉ với ID: " + addressId));
+        order.setShippingAddress(address);
+        return orderRepository.save(order);
+    }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 @Table(name = "orders")
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name="order_id")
@@ -19,14 +19,15 @@ public class Order {
     @ManyToOne
     private User user;
 
-    @OneToMany(mappedBy = "order",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     private LocalDateTime orderDate;
 
     private LocalDateTime deliveryDate;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "shipping_address_id")
     private Address shippingAddress;
 
     @Embedded

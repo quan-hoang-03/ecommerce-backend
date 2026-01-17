@@ -43,4 +43,28 @@ public class OrderController {
         Order orders = orderService.findOrderById(orderId);
         return new ResponseEntity<>(orders, HttpStatus.ACCEPTED);
     }
+
+    @PutMapping("/{id}/address")
+    public ResponseEntity<Order> updateOrderAddress(
+            @PathVariable("id") Long orderId,
+            @RequestBody java.util.Map<String, Long> request,
+            @RequestHeader("Authorization") String jwt) throws UserException, OrderException {
+        User user = userService.findUserProfileByJwt(jwt);
+        Long addressId = request.get("addressId");
+        Order order = orderService.updateOrderAddress(orderId, addressId);
+        return new ResponseEntity<>(order, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/cod")
+    public ResponseEntity<Order> confirmCODOrder(
+            @PathVariable("id") Long orderId,
+            @RequestHeader("Authorization") String jwt) throws UserException, OrderException {
+        User user = userService.findUserProfileByJwt(jwt);
+        Order order = orderService.findOrderById(orderId);
+        order.setOrderStatus("PLACED");
+        order.getPaymentDetails().setPaymentMethod("COD");
+        order.getPaymentDetails().setPaymentStatus("PENDING");
+        Order savedOrder = orderService.placeOrder(orderId);
+        return new ResponseEntity<>(savedOrder, HttpStatus.OK);
+    }
 }

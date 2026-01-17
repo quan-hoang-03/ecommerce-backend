@@ -28,4 +28,6 @@ public interface OrderService {
 
     public void deleteOrder(Long orderId) throws OrderException;
 
+    public Order updateOrderAddress(Long orderId, Long addressId) throws OrderException;
+
 }

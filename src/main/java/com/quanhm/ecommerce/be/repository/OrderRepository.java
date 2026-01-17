@@ -10,7 +10,12 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface OrderRepository extends JpaRepository <Order, Long>{
-    @Query("SELECT o FROM Order o WHERE o.user.id = :userId AND (o.orderStatus = 'PLACED' OR o.orderStatus = 'CONFIRMED' OR o.orderStatus = 'SHIPPED' OR o.orderStatus = 'DELIVERED')")
+    @Query("SELECT DISTINCT o FROM Order o " +
+           "LEFT JOIN FETCH o.orderItems oi " +
+           "LEFT JOIN FETCH oi.product p " +
+           "LEFT JOIN FETCH o.shippingAddress " +
+           "WHERE o.user.id = :userId " +
+           "ORDER BY o.orderDate DESC")
     public List<Order> getUsersOrders(@Param("userId") Long userId);
 
     // Tổng doanh thu (chỉ tính các đơn đã hoàn thành)
