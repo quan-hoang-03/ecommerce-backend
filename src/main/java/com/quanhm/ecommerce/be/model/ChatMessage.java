@@ -22,6 +22,9 @@ public class ChatMessage {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     private LocalDateTime timestamp;
 
     private Boolean isRead;
@@ -35,6 +38,15 @@ public class ChatMessage {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
+        this.timestamp = LocalDateTime.now();
+        this.isRead = false;
+    }
+
+    public ChatMessage(User sender, User receiver, String content, String imageUrl) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.content = content;
+        this.imageUrl = imageUrl;
         this.timestamp = LocalDateTime.now();
         this.isRead = false;
     }
@@ -85,5 +97,13 @@ public class ChatMessage {
 
     public void setIsRead(Boolean isRead) {
         this.isRead = isRead;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

@@ -8,6 +8,8 @@ import java.util.List;
 public interface ChatService {
     ChatMessage sendMessage(User sender, User receiver, String content);
     
+    ChatMessage sendMessage(User sender, User receiver, String content, String imageUrl);
+    
     List<ChatMessage> getConversation(Long userId1, Long userId2);
     
     List<ChatMessage> getUserMessages(User user);
@@ -21,4 +23,6 @@ public interface ChatService {
     List<User> getUsersWithConversations(User currentUser);
     
     void deleteMessage(Long messageId, User user);
+    
+    void deleteConversation(Long userId1, Long userId2, User currentUser);
 }

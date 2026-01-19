@@ -30,6 +30,12 @@ public class ChatServiceImplementation implements ChatService {
     }
 
     @Override
+    public ChatMessage sendMessage(User sender, User receiver, String content, String imageUrl) {
+        ChatMessage message = new ChatMessage(sender, receiver, content, imageUrl);
+        return chatMessageRepository.save(message);
+    }
+
+    @Override
     public List<ChatMessage> getConversation(Long userId1, Long userId2) {
         return chatMessageRepository.findConversationBetweenUsers(userId1, userId2);
     }
@@ -89,5 +95,19 @@ public class ChatServiceImplementation implements ChatService {
         }
         
         chatMessageRepository.delete(message);
+    }
+
+    @Override
+    public void deleteConversation(Long userId1, Long userId2, User currentUser) {
+        // Kiểm tra quyền: chỉ cho phép xóa cuộc trò chuyện nếu currentUser là một trong hai người
+        if (!currentUser.getId().equals(userId1) && !currentUser.getId().equals(userId2)) {
+            throw new RuntimeException("Bạn không có quyền xóa cuộc trò chuyện này");
+        }
+        
+        // Lấy tất cả tin nhắn trong cuộc trò chuyện
+        List<ChatMessage> messages = chatMessageRepository.findConversationBetweenUsers(userId1, userId2);
+        
+        // Xóa tất cả tin nhắn
+        chatMessageRepository.deleteAll(messages);
     }
 }

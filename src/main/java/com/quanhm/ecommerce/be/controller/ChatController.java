@@ -14,10 +14,18 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -57,6 +65,7 @@ public class ChatController {
         response.put("receiverId", message.getReceiver().getId());
         response.put("receiverName", message.getReceiver().getFirstName() + " " + message.getReceiver().getLastName());
         response.put("content", message.getContent());
+        response.put("imageUrl", message.getImageUrl());
         response.put("timestamp", message.getTimestamp());
         response.put("isRead", message.getIsRead());
 
@@ -87,6 +96,7 @@ public class ChatController {
             normalized.put("receiverId", msg.getReceiver().getId());
             normalized.put("receiverName", msg.getReceiver().getFirstName() + " " + msg.getReceiver().getLastName());
             normalized.put("content", msg.getContent());
+            normalized.put("imageUrl", msg.getImageUrl());
             normalized.put("timestamp", msg.getTimestamp());
             normalized.put("isRead", msg.getIsRead());
             return normalized;
@@ -156,6 +166,96 @@ public class ChatController {
             notification.put("messageId", messageId);
             
             return ResponseEntity.ok(Map.of("message", "Đã xóa tin nhắn thành công", "messageId", messageId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping(value = "/send-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> sendMessageWithImage(
+            @RequestHeader("Authorization") String jwt,
+            @RequestPart("receiverId") String receiverIdStr,
+            @RequestPart(value = "content", required = false) String content,
+            @RequestPart("image") MultipartFile imageFile
+    ) throws UserException, IOException {
+        User sender = userService.findUserProfileByJwt(jwt);
+        Long receiverId = Long.parseLong(receiverIdStr);
+        String messageContent = content != null ? content : "";
+
+        User receiver = userRepository.findById(receiverId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người nhận"));
+
+        // Validate image file
+        if (imageFile == null || imageFile.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "File ảnh không được để trống"));
+        }
+
+        String contentType = imageFile.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            return ResponseEntity.badRequest().body(Map.of("message", "File phải là hình ảnh"));
+        }
+
+        // Create upload directory if not exists
+        Path uploadDir = Paths.get("uploads/chat-images");
+        if (!Files.exists(uploadDir)) {
+            Files.createDirectories(uploadDir);
+        }
+
+        // Generate unique filename
+        String originalFileName = imageFile.getOriginalFilename();
+        String fileExtension = "";
+        if (originalFileName != null && originalFileName.contains(".")) {
+            fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        }
+        String fileName = UUID.randomUUID().toString() + fileExtension;
+        Path filePath = uploadDir.resolve(fileName);
+
+        // Save file
+        Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        // Create image URL
+        String imageUrl = "/uploads/chat-images/" + fileName;
+
+        // Save message with image
+        ChatMessage message = chatService.sendMessage(sender, receiver, messageContent, imageUrl);
+
+        // Send message via WebSocket
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", message.getId());
+        response.put("senderId", message.getSender().getId());
+        response.put("senderName", message.getSender().getFirstName() + " " + message.getSender().getLastName());
+        response.put("receiverId", message.getReceiver().getId());
+        response.put("receiverName", message.getReceiver().getFirstName() + " " + message.getReceiver().getLastName());
+        response.put("content", message.getContent());
+        response.put("imageUrl", message.getImageUrl());
+        response.put("timestamp", message.getTimestamp());
+        response.put("isRead", message.getIsRead());
+
+        // Send to both sender and receiver
+        messagingTemplate.convertAndSend("/topic/messages/" + sender.getId(), response);
+        messagingTemplate.convertAndSend("/topic/messages/" + receiver.getId(), response);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/conversation/{userId}")
+    public ResponseEntity<?> deleteConversation(
+            @RequestHeader("Authorization") String jwt,
+            @PathVariable Long userId
+    ) throws UserException {
+        User currentUser = userService.findUserProfileByJwt(jwt);
+        try {
+            chatService.deleteConversation(currentUser.getId(), userId, currentUser);
+            
+            // Thông báo qua WebSocket để cập nhật UI
+            Map<String, Object> notification = new HashMap<>();
+            notification.put("type", "conversation_deleted");
+            notification.put("userId", userId);
+            
+            messagingTemplate.convertAndSend("/topic/messages/" + currentUser.getId(), notification);
+            messagingTemplate.convertAndSend("/topic/messages/" + userId, notification);
+            
+            return ResponseEntity.ok(Map.of("message", "Đã xóa toàn bộ cuộc trò chuyện thành công"));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
