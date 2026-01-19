@@ -13,6 +13,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String title;
 
     @Column(columnDefinition = "NVARCHAR(MAX)")
@@ -32,10 +33,10 @@ public class Product {
     @Column(name="sold_quantity")
     private int soldQuantity = 0;
 
-    @Column(name="brand")
+    @Column(name="brand", columnDefinition = "NVARCHAR(MAX)")
     private String brand;
 
-    @Column(name="colors")
+    @Column(name="colors", columnDefinition = "NVARCHAR(MAX)")
     private String colors;
 
     @ElementCollection

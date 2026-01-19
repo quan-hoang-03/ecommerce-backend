@@ -39,6 +39,13 @@ public class AdminProductController {
             @RequestPart(value = "image", required = false) MultipartFile imageFile
     ) throws IOException {
 
+        // Log request body để debug
+        System.out.println("=== CREATE PRODUCT REQUEST ===");
+        System.out.println("Title: " + req.getTitle());
+        System.out.println("Brand: " + req.getBrand());
+        System.out.println("Description: " + (req.getDescription() != null ? req.getDescription().substring(0, Math.min(100, req.getDescription().length())) : "null"));
+        System.out.println("==============================");
+
         // Nếu có ảnh thì lưu file
         if (imageFile != null && !imageFile.isEmpty()) {
             Path uploadDir = Paths.get("uploads");
@@ -80,6 +87,14 @@ public class AdminProductController {
             @RequestPart("product") CreateProductRequest req,
             @RequestPart(value = "image", required = false) MultipartFile imageFile
     ) throws IOException, ProductExpection {
+
+        // Log request body để debug
+        System.out.println("=== UPDATE PRODUCT REQUEST ===");
+        System.out.println("Product ID: " + productId);
+        System.out.println("Title: " + req.getTitle());
+        System.out.println("Brand: " + req.getBrand());
+        System.out.println("Description: " + (req.getDescription() != null ? req.getDescription().substring(0, Math.min(100, req.getDescription().length())) : "null"));
+        System.out.println("==============================");
 
         // Lấy sản phẩm hiện tại
         Product existingProduct = productService.findProductById(productId);
