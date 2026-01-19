@@ -12,9 +12,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // Đếm số sản phẩm theo category
     long countByCategory(Category category);
     @Query("SELECT p FROM Product p " +
-            "WHERE (p.category.name = :category OR :category = '') " +
-            "AND ((:minPrice IS NULL AND :maxPrice IS NULL) OR (p.discountPrice BETWEEN :minPrice AND :maxPrice)) " +
-            "AND (:minDiscount IS NULL OR p.discountPersent >= :minDiscount) " +
+            "LEFT JOIN FETCH p.category c " +
+            "LEFT JOIN FETCH c.parentCategory pc " +
+            "LEFT JOIN FETCH pc.parentCategory ppc " +
+            "WHERE (:category = '' OR " +
+            "       LOWER(c.name) = LOWER(:category) OR " +
+            "       (pc IS NOT NULL AND LOWER(pc.name) = LOWER(:category)) OR " +
+            "       (pc IS NOT NULL AND ppc IS NOT NULL AND LOWER(ppc.name) = LOWER(:category))) " +
+            "AND ((:minPrice = '0' AND :maxPrice = '0') OR (p.discountPrice BETWEEN CAST(:minPrice AS int) AND CAST(:maxPrice AS int))) " +
+            "AND (:minDiscount = '0' OR p.discountPersent >= CAST(:minDiscount AS int)) " +
             "ORDER BY " +
             "CASE WHEN :sort = 'price_low' THEN p.discountPrice END ASC, " +
             "CASE WHEN :sort = 'price_high' THEN p.discountPrice END DESC")
@@ -38,5 +44,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByCategory_NameIgnoreCase(String categoryName);
 
+    // Fetch category khi lấy tất cả products
+    @Query("SELECT DISTINCT p FROM Product p LEFT JOIN FETCH p.category")
+    List<Product> findAllWithCategory();
 
 }

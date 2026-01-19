@@ -64,20 +64,28 @@ public class ProductServiceImplementation implements ProductService{
             secondLevel = categoryRepository.save(secondLavelCategory);
         }
 
-        Category thirdLevel = categoryRepository.findByNameAndParent(req.getThirdLavelCategory(),secondLevel.getName());
-        if(thirdLevel == null){
-            Category thirdLavelCategory = new Category();
-            thirdLavelCategory.setName(req.getThirdLavelCategory());
-            thirdLavelCategory.setParentCategory(secondLevel);
-            thirdLavelCategory.setLevel(3);
+        Category finalCategory;
+        // Nếu có danh mục cấp 3, dùng cấp 3, nếu không thì dùng cấp 2
+        if (req.getThirdLavelCategory() != null && !req.getThirdLavelCategory().trim().isEmpty()) {
+            Category thirdLevel = categoryRepository.findByNameAndParent(req.getThirdLavelCategory(), secondLevel.getName());
+            if(thirdLevel == null){
+                Category thirdLavelCategory = new Category();
+                thirdLavelCategory.setName(req.getThirdLavelCategory());
+                thirdLavelCategory.setParentCategory(secondLevel);
+                thirdLavelCategory.setLevel(3);
 
-            thirdLevel = categoryRepository.save(thirdLavelCategory);
+                thirdLevel = categoryRepository.save(thirdLavelCategory);
+            }
+            finalCategory = thirdLevel;
+        } else {
+            // Nếu không có cấp 3, dùng cấp 2
+            finalCategory = secondLevel;
         }
 
         Product product = new Product();
         product.setTitle(req.getTitle());
         product.setDescription(req.getDescription());
-        product.setCategory(thirdLevel);
+        product.setCategory(finalCategory);
         product.setPrice(req.getPrice());
         product.setDiscountPrice(req.getDiscountPrice());
         product.setDiscountPersent(req.getDiscountPersent());
@@ -110,7 +118,9 @@ public class ProductServiceImplementation implements ProductService{
         Product product = findProductById(productId);
 
         // Update category nếu có thay đổi
-        if (req.getTopLavelCategory() != null && req.getSecondLavelCategory() != null && req.getThirdLavelCategory() != null) {
+        if (req.getTopLavelCategory() != null && !req.getTopLavelCategory().trim().isEmpty() 
+            && req.getSecondLavelCategory() != null && !req.getSecondLavelCategory().trim().isEmpty()) {
+            
             Category topLevel = categoryRepository.findByName(req.getTopLavelCategory());
             if (topLevel == null) {
                 Category topLavelCategory = new Category();
@@ -128,21 +138,26 @@ public class ProductServiceImplementation implements ProductService{
                 secondLevel = categoryRepository.save(secondLavelCategory);
             }
 
-            Category thirdLevel = categoryRepository.findByNameAndParent(req.getThirdLavelCategory(), secondLevel.getName());
-            if (thirdLevel == null) {
-                Category thirdLavelCategory = new Category();
-                thirdLavelCategory.setName(req.getThirdLavelCategory());
-                thirdLavelCategory.setParentCategory(secondLevel);
-                thirdLavelCategory.setLevel(3);
-                thirdLevel = categoryRepository.save(thirdLavelCategory);
+            // Nếu có danh mục cấp 3, dùng cấp 3, nếu không thì dùng cấp 2
+            if (req.getThirdLavelCategory() != null && !req.getThirdLavelCategory().trim().isEmpty()) {
+                Category thirdLevel = categoryRepository.findByNameAndParent(req.getThirdLavelCategory(), secondLevel.getName());
+                if (thirdLevel == null) {
+                    Category thirdLavelCategory = new Category();
+                    thirdLavelCategory.setName(req.getThirdLavelCategory());
+                    thirdLavelCategory.setParentCategory(secondLevel);
+                    thirdLavelCategory.setLevel(3);
+                    thirdLevel = categoryRepository.save(thirdLavelCategory);
+                }
+                product.setCategory(thirdLevel);
+            } else {
+                // Nếu không có cấp 3, dùng cấp 2
+                product.setCategory(secondLevel);
             }
-
-            product.setCategory(thirdLevel);
         }
 
         // Update các field khác
-        if (req.getTitle() != null && !req.getTitle().trim().isEmpty()) {
-            product.setTitle(req.getTitle());
+        if (req.getTitle() != null) {
+            product.setTitle(req.getTitle().trim());
         }
         if (req.getDescription() != null) {
             product.setDescription(req.getDescription());
@@ -159,8 +174,8 @@ public class ProductServiceImplementation implements ProductService{
         if (req.getQuantity() >= 0) {
             product.setQuantity(req.getQuantity());
         }
-        if (req.getBrand() != null && !req.getBrand().trim().isEmpty()) {
-            product.setBrand(req.getBrand());
+        if (req.getBrand() != null) {
+            product.setBrand(req.getBrand().trim());
         }
         if (req.getColors() != null) {
             product.setColors(req.getColors());
@@ -210,6 +225,20 @@ public class ProductServiceImplementation implements ProductService{
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
+        // Debug: Log category name
+        System.out.println("DEBUG - Filtering products with category: '" + category + "'");
+        
+        // Debug: List all products and their category names
+        List<Product> allProducts = productRepository.findAll();
+        System.out.println("DEBUG - Total products in DB: " + allProducts.size());
+        for (Product p : allProducts) {
+            if (p.getCategory() != null) {
+                System.out.println("DEBUG - Product '" + p.getTitle() + "' has category name: '" + p.getCategory().getName() + "', displayName: '" + p.getCategory().getDisplayName() + "'");
+            } else {
+                System.out.println("DEBUG - Product '" + p.getTitle() + "' has NO category");
+            }
+        }
+        
         // Lấy toàn bộ sản phẩm sau khi filter theo category, price, discount, sort
         List<Product> products = productRepository.filterProducts(
                 category,
@@ -218,6 +247,9 @@ public class ProductServiceImplementation implements ProductService{
                 String.valueOf(minDiscount),
                 sort
         );
+        
+        // Debug: Log result count
+        System.out.println("DEBUG - Found " + products.size() + " products after filter");
 
         // Lọc theo màu (nếu có)
         if (colors != null && !colors.isEmpty()) {
@@ -269,7 +301,7 @@ public class ProductServiceImplementation implements ProductService{
         }
     }
     public List<Product> findAllProducts() {
-        return productRepository.findAll();
+        return productRepository.findAllWithCategory();
     }
 
 }
